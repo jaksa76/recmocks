@@ -6,6 +6,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.zuhlke.testing.recmocks.TestUtils.args;
+
 @RunWith(RecMocks.class)
 public class FieldDeclarationInitializationReplayTest {
     private int dummy = generateTraces();
@@ -33,9 +35,5 @@ public class FieldDeclarationInitializationReplayTest {
     @Test
     public void checkClassFieldsOnceMore() throws Exception {
         Assert.assertEquals("Bob", customerName);
-    }
-
-    private Object[] args(Object... o) {
-        return o;
     }
 }

@@ -10,6 +10,7 @@ public class Invocation implements Externalizable {
     private String methodName;
     private Object[] args;
     private Object returnValue;
+    private Class returnClass;
     private Exception exception;
 
     public Invocation() {
@@ -19,6 +20,7 @@ public class Invocation implements Externalizable {
     Invocation(String methodName, Object[] args, Object returnValue) {
         this.methodName = methodName;
         this.args = args;
+        this.returnClass = returnValue.getClass();
         this.returnValue = returnValue;
     }
 
@@ -44,6 +46,10 @@ public class Invocation implements Externalizable {
         return returnValue;
     }
 
+    public Class getReturnClass() {
+        return returnClass;
+    }
+
     Exception getException() {
         return exception;
     }
@@ -64,6 +70,7 @@ public class Invocation implements Externalizable {
         Object[] argsForSerialization = new Object[args.length];
         for (int i = 0; i < args.length; i++) argsForSerialization[i] = marshal(args[i]);
         out.writeObject(argsForSerialization);
+        out.writeObject(returnClass);
         out.writeObject(marshal(returnValue));
         out.writeObject(exception);
     }
@@ -77,6 +84,7 @@ public class Invocation implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         methodName = (String) in.readObject();
         args = (Object[]) in.readObject();
+        returnClass = (Class) in.readObject();
         returnValue = in.readObject();
         exception = (Exception) in.readObject();
     }
