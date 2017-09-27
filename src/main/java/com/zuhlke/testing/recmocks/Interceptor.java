@@ -16,11 +16,21 @@ class Interceptor<T> implements MethodInterceptor {
     private final MockedObjectId id;
     private final T underlying;
     private final InterceptorFactory factory;
+    private final Class<T> clazz;
     private T proxy;
 
     Interceptor(MockedObjectId id, T underlying, InterceptorFactory factory) {
         this.id = id;
         this.underlying = underlying;
+        this.clazz = (Class<T>) underlying.getClass();
+        this.factory = factory;
+        this.proxy = newProxy();
+    }
+
+    public Interceptor(MockedObjectId id, Class c, InterceptorFactory factory) {
+        this.id = id;
+        this.clazz = c;
+        this.underlying = null;
         this.factory = factory;
         this.proxy = newProxy();
     }
@@ -77,10 +87,13 @@ class Interceptor<T> implements MethodInterceptor {
     }
 
     private T newProxy() {
-        Class<?> clazz = underlying.getClass();
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
         enhancer.setCallback(this);
+        return createDynamicProxy(clazz, enhancer);
+    }
+
+    private T createDynamicProxy(Class<?> clazz, Enhancer enhancer) {
         Constructor constructor = getConstructorWithLeastParameters(clazz.getConstructors());
         int parameterCount = constructor.getParameterCount();
         if (parameterCount == 0) {

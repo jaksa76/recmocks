@@ -26,6 +26,6 @@ class InterceptorFactory {
     }
 
     public Interceptor createInterceptorForClass(Class c) {
-        return new Interceptor(getCurrentContext().generateId(c), null, this);
+        return new Interceptor(getCurrentContext().generateId(c), c, this);
     }
 }

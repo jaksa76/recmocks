@@ -56,7 +56,7 @@ public class TestRecording {
         trace.logInvocation(new Invocation("get", args(0), "A"));
         trace.logInvocation(new Invocation("get", args(1), "B"));
 
-        RecMocks.factory.setRecordMode(false); // activate replay mode
+        setPlaybackMode();
 
         List<String> list = RecMocks.recmock(new ArrayList<String>());
         assertEquals("A", list.get(0));
@@ -88,7 +88,25 @@ public class TestRecording {
         assertEquals("John", customerInvocation.getReturnValue());
     }
 
+    @Test
+    public void testCompositeObjectReplay() {
+        Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjectReplay.LegacyCrm.1.trace");
+        crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Jane", "Doe")));
+        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjectReplay.Customer.2.trace");
+        customerTrace.logInvocation(new Invocation("getName", args(), "Bob"));
+
+        setPlaybackMode();
+
+        LegacyCrm crm = RecMocks.recmock(new LegacyCrm());
+        Customer customer = crm.getCustomer(1);
+        assertEquals("Bob", customer.getName());
+    }
+
     private Object[] args(Object... o) {
         return o;
+    }
+
+    private void setPlaybackMode() {
+        RecMocks.factory.setRecordMode(false); // activate replay mode
     }
 }
