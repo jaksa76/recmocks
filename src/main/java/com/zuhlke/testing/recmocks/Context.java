@@ -22,6 +22,21 @@ class Context {
         return traces.computeIfAbsent(id, i -> new Trace(getPath(i)));
     }
 
+    private String getInvoker() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        // find where the Iterceptor is invoked
+        int lastInterceptorInvocation = 0;
+        for (int i = 0; i < stackTrace.length; i++) {
+            if (stackTrace[i].getClassName().equals("com.zuhlke.testing.recmocks.Interceptor")) lastInterceptorInvocation = i;
+        }
+
+        // the invoker will invoke the dynamic proxy which will invoke the Interceptor
+        String invoker = stackTrace[lastInterceptorInvocation + 2].getClassName();
+
+        return invoker;
+    }
+
     private String getPath(MockedObjectId id) {
         String path = "recmocks/traces/";
 
@@ -32,6 +47,8 @@ class Context {
             if (methodName != null) {
                 path += methodName + ".";
             }
+        } else {
+            path += getInvoker().replaceAll("\\.", "/") + ".";
         }
 
         path += id;

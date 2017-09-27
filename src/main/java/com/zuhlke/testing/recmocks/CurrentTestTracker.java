@@ -7,11 +7,6 @@ class CurrentTestTracker extends RunListener {
     private Context currentCtx = new Context(null, null);
 
     @Override
-    public void testRunStarted(Description description) throws Exception {
-        super.testRunStarted(description);
-    }
-
-    @Override
     public void testStarted(Description description) throws Exception {
         currentCtx = new Context(description.getTestClass(), description.getMethodName());
         super.testStarted(description);
@@ -22,7 +17,7 @@ class CurrentTestTracker extends RunListener {
         super.testFinished(description);
     }
 
-    public Context getCurrentContext() {
+    Context getCurrentContext() {
         return currentCtx;
     }
 }

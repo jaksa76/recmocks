@@ -27,7 +27,7 @@ class Interceptor<T> implements MethodInterceptor {
         this.proxy = newProxy();
     }
 
-    public Interceptor(MockedObjectId id, Class c, InterceptorFactory factory) {
+    Interceptor(MockedObjectId id, Class<T> c, InterceptorFactory factory) {
         this.id = id;
         this.clazz = c;
         this.underlying = null;

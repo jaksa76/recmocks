@@ -1,7 +1,7 @@
 package com.zuhlke.testing.recmocks;
 
 /**
- * Created by jvu on 9/27/2017.
+ * A non-serializable class with no no-args constructor.
  */
 public class Customer {
     private final String name;
