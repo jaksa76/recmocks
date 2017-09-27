@@ -14,7 +14,6 @@ public class RecMocks extends BlockJUnit4ClassRunner {
 
     public RecMocks(Class<?> klass) throws InitializationError {
         super(klass);
-        System.out.println("RecMocks.RecMocks");
     }
 
     @Override

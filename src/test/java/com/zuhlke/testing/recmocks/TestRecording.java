@@ -1,12 +1,9 @@
 package com.zuhlke.testing.recmocks;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,13 +29,35 @@ public class TestRecording {
 
         Trace trace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testRecording.ArrayList.1.trace");
         Invocation invocation1 = trace.getNextInvocation();
-        System.out.println(invocation1);
+        assertEquals("add", invocation1.getMethodName());
+        assertEquals("A", invocation1.getArgs()[0]);
         Invocation invocation2 = trace.getNextInvocation();
-        System.out.println(invocation2);
+        assertEquals("add", invocation2.getMethodName());
+        assertEquals("B", invocation2.getArgs()[0]);
         Invocation invocation3 = trace.getNextInvocation();
-        System.out.println(invocation3);
+        assertEquals("get", invocation3.getMethodName());
+        assertEquals(0, invocation3.getArgs()[0]);
+        assertEquals("A", invocation3.getReturnValue());
         Invocation invocation4 = trace.getNextInvocation();
-        System.out.println(invocation4);
-//        assertEquals("A", invocation1.getArgs()[0]);
+        assertEquals("get", invocation4.getMethodName());
+        assertEquals(1, invocation4.getArgs()[0]);
+        assertEquals("B", invocation4.getReturnValue());
+    }
+
+    @Test
+    public void testReplaying() throws Exception {
+        Trace trace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testReplaying.ArrayList.1.trace");
+        trace.logInvocation(new Invocation("get", args(0), "A"));
+        trace.logInvocation(new Invocation("get", args(1), "B"));
+
+        RecMocks.factory.setRecordMode(false); // activate replay mode
+
+        List<String> list = RecMocks.recmock(new ArrayList<String>());
+        assertEquals("A", list.get(0));
+        assertEquals("B", list.get(1));
+    }
+
+    private Object[] args(Object... o) {
+        return o;
     }
 }
