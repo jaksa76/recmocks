@@ -3,10 +3,15 @@ package com.zuhlke.testing.recmocks;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Defines where the invocations are coming from.
+ * It could be a field initialization of a test class, a @BeginClass method, a test method or
+ * the lazy initialization in another class.
+ */
 class Context {
     private final Class testClass;
     private final String methodName;
-    private int counter = 1;
+    private int counter = 1; // used to create trace ids
     private Map<MockedObjectId, Trace> traces = new HashMap<MockedObjectId, Trace>();
 
     Context(Class testClass, String methodName) {
@@ -22,6 +27,9 @@ class Context {
         return traces.computeIfAbsent(id, i -> new Trace(getPath(i)));
     }
 
+    /**
+     * @return the fully qualified class name of the object invoking the mock.
+     */
     private String getInvoker() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
