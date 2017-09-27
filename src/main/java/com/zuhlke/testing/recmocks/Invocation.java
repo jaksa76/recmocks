@@ -3,6 +3,9 @@ package com.zuhlke.testing.recmocks;
 import java.io.*;
 import java.util.Arrays;
 
+/**
+ * Represents an invocation in a {@link Trace}.
+ */
 public class Invocation implements Externalizable {
     private String methodName;
     private Object[] args;
@@ -80,9 +83,6 @@ public class Invocation implements Externalizable {
 
     static class ClassWrapper implements Serializable {
         final Class c;
-
-        ClassWrapper(Class c) {
-            this.c = c;
-        }
+        ClassWrapper(Class c) { this.c = c; }
     }
 }

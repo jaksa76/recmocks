@@ -36,7 +36,7 @@ class Context {
         // find where the Iterceptor is invoked
         int lastInterceptorInvocation = 0;
         for (int i = 0; i < stackTrace.length; i++) {
-            if (stackTrace[i].getClassName().equals("com.zuhlke.testing.recmocks.Interceptor")) lastInterceptorInvocation = i;
+            if (stackTrace[i].getClassName().equals(Interceptor.class.getName())) lastInterceptorInvocation = i;
         }
 
         // the invoker will invoke the dynamic proxy which will invoke the Interceptor
@@ -47,22 +47,21 @@ class Context {
 
     private String getPath(MockedObjectId id) {
         String path = "recmocks/traces/";
-
-        if (testClass != null) {
-            String packageName = testClass.getPackage().getName();
-            String packagePath = packageName.replaceAll("\\.", "/");
-            path += packagePath + "/" + testClass.getSimpleName() + ".";
-            if (methodName != null) {
-                path += methodName + ".";
-            }
-        } else {
-            path += getInvoker().replaceAll("\\.", "/") + ".";
-        }
-
+        path += isInsideTestMethod() ? pathFromTestMethod() : pathFromInvoker();
         path += id;
-
         path += ".trace";
-
         return path;
+    }
+
+    private String pathFromInvoker() {
+        return getInvoker().replaceAll("\\.", "/") + ".";
+    }
+
+    private String pathFromTestMethod() {
+        return testClass.getName().replaceAll("\\.", "/") + "." + methodName + ".";
+    }
+
+    private boolean isInsideTestMethod() {
+        return methodName != null;
     }
 }
