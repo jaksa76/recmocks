@@ -8,13 +8,11 @@ class CurrentTestTracker extends RunListener {
 
     @Override
     public void testRunStarted(Description description) throws Exception {
-        System.out.println(description);
         super.testRunStarted(description);
     }
 
     @Override
     public void testStarted(Description description) throws Exception {
-        System.out.println(description);
         currentCtx = new Context(description.getTestClass(), description.getMethodName());
         super.testStarted(description);
     }
