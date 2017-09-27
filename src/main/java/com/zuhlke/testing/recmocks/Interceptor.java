@@ -55,7 +55,7 @@ class Interceptor<T> implements MethodInterceptor {
     }
 
     private Trace getTrace() {
-        return factory.getCurrentContext().getTrace(clazz, id);
+        return factory.getCurrentContext().getTrace(id);
     }
 
     private boolean isRecordMode() {

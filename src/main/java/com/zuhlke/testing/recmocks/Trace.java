@@ -1,7 +1,6 @@
 package com.zuhlke.testing.recmocks;
 
 import java.io.*;
-import java.nio.file.Files;
 
 class Trace {
     private String path;

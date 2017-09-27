@@ -1,11 +1,13 @@
 package com.zuhlke.testing.recmocks;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 class Context {
     private final Class testClass;
     private final String methodName;
     private int counter = 1;
+    private Map<MockedObjectId, Trace> traces = new HashMap<MockedObjectId, Trace>();
 
     Context(Class testClass, String methodName) {
         this.testClass = testClass;
@@ -16,11 +18,11 @@ class Context {
         return new MockedObjectId(objectClass.getSimpleName(), counter++);
     }
 
-    Trace getTrace(Class objectClass, MockedObjectId id) {
-        return new Trace(getPath(objectClass, id));
+    Trace getTrace(MockedObjectId id) {
+        return traces.computeIfAbsent(id, i -> new Trace(getPath(i)));
     }
 
-    private String getPath(Class objectClass, MockedObjectId id) {
+    private String getPath(MockedObjectId id) {
         String path = "recmocks/traces/";
 
         if (testClass != null) {

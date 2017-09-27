@@ -1,6 +1,7 @@
 package com.zuhlke.testing.recmocks;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Invocation implements Serializable {
     private String methodName;
@@ -38,5 +39,15 @@ public class Invocation implements Serializable {
 
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    public String toString() {
+        return "Invocation{" +
+                "methodName='" + methodName + '\'' +
+                ", args=" + Arrays.toString(args) +
+                ", returnValue=" + returnValue +
+                ", exception=" + exception +
+                '}';
     }
 }
