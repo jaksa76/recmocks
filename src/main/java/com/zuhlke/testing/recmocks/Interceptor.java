@@ -4,7 +4,10 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Interceptor of invocations that either works in record or replay mode.
@@ -12,21 +15,28 @@ import java.lang.reflect.Method;
 class Interceptor<T> implements MethodInterceptor {
     private final MockedObjectId id;
     private final T underlying;
-    private final Class<T> clazz;
     private final InterceptorFactory factory;
     private T proxy;
 
     Interceptor(MockedObjectId id, T underlying, InterceptorFactory factory) {
         this.id = id;
         this.underlying = underlying;
-        this.clazz = (Class<T>) underlying.getClass();
         this.factory = factory;
         this.proxy = newProxy();
     }
 
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = isRecordMode() ? record(o, method, args, methodProxy) : replay();
-        return isPrimitive(result) ? result : factory.createInterceptor(result);
+        if (result == null) return null;
+        return isPrimitive(result) ? result : createInterceptor(result).getProxy();
+    }
+
+    private Interceptor<Object> createInterceptor(Object result) {
+        if (result instanceof Invocation.ClassWrapper) {
+            Class clazz = ((Invocation.ClassWrapper) result).c;
+            return factory.createInterceptorForClass(clazz);
+        }
+        return factory.createInterceptor(result);
     }
 
     private boolean isPrimitive(Object result) {
@@ -43,7 +53,7 @@ class Interceptor<T> implements MethodInterceptor {
     private Object record(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Invocation invocation = null;
         try {
-            Object returnValue = methodProxy.invokeSuper(o, args);
+            Object returnValue = methodProxy.invoke(underlying, args);
             invocation = new Invocation(method.getName(), args, returnValue);
             return returnValue;
         } catch (Exception e) {
@@ -67,9 +77,20 @@ class Interceptor<T> implements MethodInterceptor {
     }
 
     private T newProxy() {
+        Class<?> clazz = underlying.getClass();
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(underlying.getClass());
+        enhancer.setSuperclass(clazz);
         enhancer.setCallback(this);
-        return (T) enhancer.create();
+        Constructor constructor = getConstructorWithLeastParameters(clazz.getConstructors());
+        int parameterCount = constructor.getParameterCount();
+        if (parameterCount == 0) {
+            return (T) enhancer.create();
+        } else {
+            return (T) enhancer.create(constructor.getParameterTypes(), new Object[parameterCount]);
+        }
+    }
+
+    private Constructor getConstructorWithLeastParameters(Constructor[] constructors) {
+        return Stream.of(constructors).min(Comparator.comparing(Constructor::getParameterCount)).get();
     }
 }

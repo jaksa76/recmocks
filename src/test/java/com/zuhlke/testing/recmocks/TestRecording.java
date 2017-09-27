@@ -1,5 +1,6 @@
 package com.zuhlke.testing.recmocks;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,6 +13,11 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(RecMocks.class)
 public class TestRecording {
+
+    @Before
+    public void setUp() throws Exception {
+        RecMocks.factory.setRecordMode(true);
+    }
 
     @Test
     public void testRecording() throws Exception {
@@ -55,6 +61,31 @@ public class TestRecording {
         List<String> list = RecMocks.recmock(new ArrayList<String>());
         assertEquals("A", list.get(0));
         assertEquals("B", list.get(1));
+    }
+
+    @Test
+    public void testCompositeObjects() {
+        File crmFile = new File("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
+        crmFile.delete();
+        File customerFile = new File("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
+        customerFile.delete();
+
+        LegacyCrm crm = RecMocks.recmock(new LegacyCrm());
+        Customer customer = crm.getCustomer(1);
+        assertEquals("John", customer.getName());
+
+        assertTrue(crmFile.exists());
+        assertTrue(customerFile.exists());
+
+        Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
+        Invocation crmInvocation = crmTrace.getNextInvocation();
+        assertEquals("getCustomer", crmInvocation.getMethodName());
+        assertEquals(1, crmInvocation.getArgs()[0]);
+
+        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.Customer.2.trace");
+        Invocation customerInvocation = customerTrace.getNextInvocation();
+        assertEquals("getName", customerInvocation.getMethodName());
+        assertEquals("John", customerInvocation.getReturnValue());
     }
 
     private Object[] args(Object... o) {

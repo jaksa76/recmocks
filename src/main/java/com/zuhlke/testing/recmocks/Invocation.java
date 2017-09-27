@@ -1,43 +1,47 @@
 package com.zuhlke.testing.recmocks;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.Arrays;
 
-public class Invocation implements Serializable {
+public class Invocation implements Externalizable {
     private String methodName;
     private Object[] args;
     private Object returnValue;
     private Exception exception;
 
-    public Invocation(String methodName, Object[] args, Object returnValue) {
+    public Invocation() {
+
+    }
+
+    Invocation(String methodName, Object[] args, Object returnValue) {
         this.methodName = methodName;
         this.args = args;
         this.returnValue = returnValue;
     }
 
-    public Invocation(String methodName, Object[] args, Exception exception) {
+    Invocation(String methodName, Object[] args, Exception exception) {
         this.methodName = methodName;
         this.args = args;
         this.exception = exception;
     }
 
-    public boolean doesThrowException() {
+    boolean doesThrowException() {
         return exception != null;
     }
 
-    public String getMethodName() {
+    String getMethodName() {
         return methodName;
     }
 
-    public Object[] getArgs() {
+    Object[] getArgs() {
         return args;
     }
 
-    public Object getReturnValue() {
+    Object getReturnValue() {
         return returnValue;
     }
 
-    public Exception getException() {
+    Exception getException() {
         return exception;
     }
 
@@ -49,5 +53,36 @@ public class Invocation implements Serializable {
                 ", returnValue=" + returnValue +
                 ", exception=" + exception +
                 '}';
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(methodName);
+        Object[] argsForSerialization = new Object[args.length];
+        for (int i = 0; i < args.length; i++) argsForSerialization[i] = marshal(args[i]);
+        out.writeObject(argsForSerialization);
+        out.writeObject(marshal(returnValue));
+        out.writeObject(exception);
+    }
+
+    private Object marshal(Object object) {
+        if (object == null) return null;
+        return (object instanceof Serializable) ? object : new ClassWrapper(object.getClass());
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        methodName = (String) in.readObject();
+        args = (Object[]) in.readObject();
+        returnValue = in.readObject();
+        exception = (Exception) in.readObject();
+    }
+
+    static class ClassWrapper implements Serializable {
+        final Class c;
+
+        ClassWrapper(Class c) {
+            this.c = c;
+        }
     }
 }

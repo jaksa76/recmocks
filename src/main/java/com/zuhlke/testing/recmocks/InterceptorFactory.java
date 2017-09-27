@@ -24,4 +24,8 @@ class InterceptorFactory {
     void setRecordMode(boolean recordMode) {
         this.recordMode = recordMode;
     }
+
+    public Interceptor createInterceptorForClass(Class c) {
+        return new Interceptor(getCurrentContext().generateId(c), null, this);
+    }
 }
