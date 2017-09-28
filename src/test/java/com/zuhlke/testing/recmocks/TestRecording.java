@@ -5,8 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -100,6 +99,16 @@ public class TestRecording {
         LegacyCrm crm = RecMocks.recmock(new LegacyCrm());
         Customer customer = crm.getCustomer(1);
         assertEquals("Bob", customer.getName());
+    }
+
+    @Test
+    public void testRecordingMap() throws Exception {
+        Map<String, String> map = RecMocks.recmock(new HashMap<>());
+
+        map.put("ABC", "123");
+
+        assertEquals(1, map.values().size());
+        assertTrue(map.values().contains("123"));
     }
 
     private Object[] args(Object... o) {

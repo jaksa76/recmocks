@@ -16,9 +16,7 @@ class Trace {
             if (this.in == null)
                 this.in = new ObjectInputStream(new FileInputStream(path));
             return (Invocation) in.readObject();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

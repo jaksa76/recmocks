@@ -3,6 +3,8 @@ package com.zuhlke.testing.recmocks;
 import java.io.*;
 import java.util.Arrays;
 
+import static com.zuhlke.testing.recmocks.ObjectUtils.shouldSerialize;
+
 /**
  * Represents an invocation in a {@link Trace}.
  */
@@ -20,7 +22,7 @@ public class Invocation implements Externalizable {
     Invocation(String methodName, Object[] args, Object returnValue) {
         this.methodName = methodName;
         this.args = args;
-        this.returnClass = returnValue.getClass();
+        this.returnClass = returnValue != null ? returnValue.getClass() : null;
         this.returnValue = returnValue;
     }
 
@@ -77,7 +79,7 @@ public class Invocation implements Externalizable {
 
     private Object marshal(Object object) {
         if (object == null) return null;
-        return (object instanceof Serializable) ? object : new ClassWrapper(object.getClass());
+        return shouldSerialize(object) ? object : new ClassWrapper(object.getClass());
     }
 
     @Override

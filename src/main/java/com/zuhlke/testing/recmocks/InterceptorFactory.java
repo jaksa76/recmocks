@@ -2,7 +2,11 @@ package com.zuhlke.testing.recmocks;
 
 class InterceptorFactory {
     private CurrentTestTracker currentTestTracker;
-    private boolean recordMode = true;
+    private boolean recordMode = getModeFromEnv();
+
+    private boolean getModeFromEnv() {
+        return System.getenv("replay") == null;
+    }
 
     InterceptorFactory(CurrentTestTracker currentTestTracker) {
         this.currentTestTracker = currentTestTracker;

@@ -2,15 +2,20 @@ package com.zuhlke.testing.recmocks;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class ObjectUtils {
-    private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+    private static final Set<String> WRAPPER_TYPES = getWrapperTypes();
 
     static boolean isWrapperType(Class<?> clazz) {
-        return WRAPPER_TYPES.contains(clazz);
+        return WRAPPER_TYPES.contains(clazz.getName());
     }
 
-    private static Set<Class<?>> getWrapperTypes() {
+    public static boolean shouldSerialize(Object result) {
+        return ObjectUtils.isWrapperType(result.getClass()) || result.getClass().equals(String.class);
+    }
+
+    private static Set<String> getWrapperTypes() {
         Set<Class<?>> ret = new HashSet<Class<?>>();
         ret.add(Boolean.class);
         ret.add(Character.class);
@@ -21,6 +26,6 @@ class ObjectUtils {
         ret.add(Float.class);
         ret.add(Double.class);
         ret.add(Void.class);
-        return ret;
+        return ret.stream().map(t -> t.getName()).collect(Collectors.toSet());
     }
 }

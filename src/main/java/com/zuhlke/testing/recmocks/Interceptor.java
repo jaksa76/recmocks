@@ -38,7 +38,7 @@ class Interceptor<T> implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = isRecordMode() ? record(o, method, args, methodProxy) : replay();
         if (result == null) return null;
-        return isPrimitive(result) ? result : createInterceptor(result).getProxy();
+        return ObjectUtils.shouldSerialize(result) ? result : createInterceptor(result).getProxy();
     }
 
     private Interceptor<Object> createInterceptor(Object result) {
@@ -47,10 +47,6 @@ class Interceptor<T> implements MethodInterceptor {
             return factory.createInterceptorForClass(clazz);
         }
         return factory.createInterceptor(result);
-    }
-
-    private boolean isPrimitive(Object result) {
-        return ObjectUtils.isWrapperType(result.getClass()) || result.getClass().equals(String.class);
     }
 
     private Object replay() throws Exception {
@@ -94,7 +90,11 @@ class Interceptor<T> implements MethodInterceptor {
     }
 
     private T createDynamicProxy(Class<?> clazz, Enhancer enhancer) {
-        Constructor constructor = getConstructorWithLeastParameters(clazz.getConstructors());
+        Constructor<?>[] constructors = clazz.getConstructors();
+        if (constructors.length == 0) {
+            return (T) enhancer.create(clazz.getSuperclass(), this);
+        }
+        Constructor constructor = getConstructorWithLeastParameters(constructors);
         int parameterCount = constructor.getParameterCount();
         if (parameterCount == 0) {
             return (T) enhancer.create();
