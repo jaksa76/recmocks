@@ -1,22 +1,29 @@
 package com.zuhlke.testing.recmocks;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import org.objenesis.strategy.StdInstantiatorStrategy;
+
 import java.io.*;
 
 class Trace {
+    private Kryo kryo = new Kryo();
     private String path;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private Output out;
+    private Input in;
 
     Trace(String path) {
         this.path = path;
+        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
     }
 
     Invocation getNextInvocation() {
         try {
             if (this.in == null)
-                this.in = new ObjectInputStream(new FileInputStream(path));
-            return (Invocation) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+                this.in = new Input(new FileInputStream(path));
+            return kryo.readObject(in, Invocation.class);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -25,9 +32,10 @@ class Trace {
         try {
             if (this.out == null) {
                 createFile();
-                this.out = new ObjectOutputStream(new FileOutputStream(path));
+                this.out = new Output(new FileOutputStream(path));
             }
-            out.writeObject(invocation);
+            kryo.writeObject(out, invocation);
+            out.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

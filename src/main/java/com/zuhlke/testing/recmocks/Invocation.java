@@ -1,5 +1,10 @@
 package com.zuhlke.testing.recmocks;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import java.io.*;
 import java.util.Arrays;
 
@@ -8,7 +13,7 @@ import static com.zuhlke.testing.recmocks.ObjectUtils.shouldSerialize;
 /**
  * Represents an invocation in a {@link Trace}.
  */
-public class Invocation implements Externalizable {
+public class Invocation implements KryoSerializable {
     private String methodName;
     private Object[] args;
     private Object returnValue;
@@ -67,14 +72,14 @@ public class Invocation implements Externalizable {
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(methodName);
+    public void write(Kryo kryo, Output out) {
+        kryo.writeObject(out, methodName);
         Object[] argsForSerialization = new Object[args.length];
         for (int i = 0; i < args.length; i++) argsForSerialization[i] = marshal(args[i]);
-        out.writeObject(argsForSerialization);
-        out.writeObject(returnClass);
-        out.writeObject(marshal(returnValue));
-        out.writeObject(exception);
+        kryo.writeClassAndObject(out, argsForSerialization);
+        kryo.writeClassAndObject(out, returnClass);
+        kryo.writeClassAndObject(out, marshal(returnValue));
+        kryo.writeClassAndObject(out, exception);
     }
 
     private Object marshal(Object object) {
@@ -83,12 +88,12 @@ public class Invocation implements Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        methodName = (String) in.readObject();
-        args = (Object[]) in.readObject();
-        returnClass = (Class) in.readObject();
-        returnValue = in.readObject();
-        exception = (Exception) in.readObject();
+    public void read(Kryo kryo, Input in) {
+        methodName = kryo.readObject(in, String.class);
+        args = (Object[]) kryo.readClassAndObject(in);
+        returnClass = (Class) kryo.readClassAndObject(in);
+        returnValue = kryo.readClassAndObject(in);
+        exception = (Exception) kryo.readClassAndObject(in);
     }
 
     static class ClassWrapper implements Serializable {

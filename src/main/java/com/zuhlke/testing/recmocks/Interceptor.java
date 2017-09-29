@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static com.zuhlke.testing.recmocks.ObjectUtils.shouldSerialize;
+
 /**
  * Interceptor of invocations that either works in record or replay mode.
  */
@@ -38,7 +40,7 @@ class Interceptor<T> implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = isRecordMode() ? record(o, method, args, methodProxy) : replay();
         if (result == null) return null;
-        return ObjectUtils.shouldSerialize(result) ? result : createInterceptor(result).getProxy();
+        return shouldSerialize(result) ? result : createInterceptor(result).getProxy();
     }
 
     private Interceptor<Object> createInterceptor(Object result) {
@@ -83,24 +85,52 @@ class Interceptor<T> implements MethodInterceptor {
     }
 
     private T newProxy() {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(clazz);
-        enhancer.setCallback(this);
-        return createDynamicProxy(clazz, enhancer);
+        return createDynamicProxy(clazz, this);
     }
 
-    private T createDynamicProxy(Class<?> clazz, Enhancer enhancer) {
+    private T createDynamicProxy(Class<?> clazz, Interceptor<T> interceptor) {
         Constructor<?>[] constructors = clazz.getConstructors();
         if (constructors.length == 0) {
-            return (T) enhancer.create(clazz.getSuperclass(), this);
+            return (T) new Enhancer().create(findSuitableSuperclassOrInterface(clazz), this);
         }
         Constructor constructor = getConstructorWithLeastParameters(constructors);
         int parameterCount = constructor.getParameterCount();
         if (parameterCount == 0) {
-            return (T) enhancer.create();
+            return (T) new Enhancer().create(clazz, interceptor);
         } else {
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(clazz);
+            enhancer.setCallback(this);
             return (T) enhancer.create(constructor.getParameterTypes(), new Object[parameterCount]);
         }
+    }
+
+    private Class<?> findSuitableSuperclassOrInterface(Class<?> clazz) {
+        Class superclass = findSuitableSuperclass(clazz);
+        if (superclass.equals(Object.class)) return findSuitableInterface(clazz);
+        else return superclass;
+    }
+
+    private Class<?> findSuitableInterface(Class<?> clazz) {
+        if (clazz.equals(Object.class)) return clazz;
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length == 0) return findSuitableInterface(clazz.getSuperclass());
+        else return interfaces[0];
+    }
+
+    private Class findSuitableSuperclass(Class clazz) {
+        if (hasNoArgsConstructor(clazz.getSuperclass())) return clazz.getSuperclass();
+        else return findSuitableSuperclass(clazz.getSuperclass());
+    }
+
+    private boolean hasNoArgsConstructor(Class<?> superclass) {
+        if (superclass == null) return false;
+        if (superclass.isInterface()) return true;
+
+        Constructor<?>[] constructors = superclass.getConstructors();
+        if (constructors.length == 0) return false;
+
+        return (getConstructorWithLeastParameters(constructors).getParameterCount() == 0);
     }
 
     private Constructor getConstructorWithLeastParameters(Constructor[] constructors) {

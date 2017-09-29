@@ -17,10 +17,10 @@ public class FieldDeclarationInitializationReplayTest {
 
     private int generateTraces() {
         Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/FieldDeclarationInitializationReplayTest.LegacyCrm.1.trace");
-        crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Jane", "Doe")));
+        crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Bob", "Doe")));
 
-        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/FieldDeclarationInitializationReplayTest.Customer.2.trace");
-        customerTrace.logInvocation(new Invocation("gatName", args(), "Bob"));
+//        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/FieldDeclarationInitializationReplayTest.Customer.2.trace");
+//        customerTrace.logInvocation(new Invocation("gatName", args(), "Bob"));
 
         RecMocks.factory.setRecordMode(false);
 

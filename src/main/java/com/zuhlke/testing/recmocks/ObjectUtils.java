@@ -12,7 +12,8 @@ class ObjectUtils {
     }
 
     public static boolean shouldSerialize(Object result) {
-        return ObjectUtils.isWrapperType(result.getClass()) || result.getClass().equals(String.class);
+        return true;
+//        return ObjectUtils.isWrapperType(result.getClass()) || result.getClass().equals(String.class);
     }
 
     private static Set<String> getWrapperTypes() {
