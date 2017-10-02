@@ -12,9 +12,6 @@ public class ReusableAbstractReplayTest {
         Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/ReusableAbstractReplayTest.LegacyCrm.1.trace");
         crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Bob", "Doe")));
 
-//        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/ReusableAbstractReplayTest.Customer.2.trace");
-//        customerTrace.logInvocation(new Invocation("gatName", args(), "Bob"));
-
         RecMocks.factory.setRecordMode(false);
 
         crm = RecMocks.recmock(new LegacyCrm());

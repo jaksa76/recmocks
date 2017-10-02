@@ -66,33 +66,23 @@ public class TestRecording {
     public void testCompositeObjects() {
         File crmFile = new File("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
         crmFile.delete();
-//        File customerFile = new File("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
-//        customerFile.delete();
 
         LegacyCrm crm = RecMocks.recmock(new LegacyCrm());
         Customer customer = crm.getCustomer(1);
         assertEquals("John", customer.getName());
 
         assertTrue(crmFile.exists());
-//        assertTrue(customerFile.exists());
 
         Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.LegacyCrm.1.trace");
         Invocation crmInvocation = crmTrace.getNextInvocation();
         assertEquals("getCustomer", crmInvocation.getMethodName());
         assertEquals(1, crmInvocation.getArgs()[0]);
-
-//        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjects.Customer.2.trace");
-//        Invocation customerInvocation = customerTrace.getNextInvocation();
-//        assertEquals("getName", customerInvocation.getMethodName());
-//        assertEquals("John", customerInvocation.getReturnValue());
     }
 
     @Test
     public void testCompositeObjectReplay() {
         Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjectReplay.LegacyCrm.1.trace");
         crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Bob", "Doe")));
-//        Trace customerTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/TestRecording.testCompositeObjectReplay.Customer.2.trace");
-//        customerTrace.logInvocation(new Invocation("getName", args(), "Bob"));
 
         setPlaybackMode();
 
