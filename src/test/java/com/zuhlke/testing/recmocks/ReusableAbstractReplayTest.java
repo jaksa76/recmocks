@@ -9,7 +9,9 @@ public class ReusableAbstractReplayTest {
     protected static String name;
 
     private static int initializeFields() {
-        Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/ReusableAbstractReplayTest.LegacyCrm.1.trace");
+        Trace crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/ReplayTestSubclass1.checkTraces.LegacyCrm.1.trace");
+        crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Bob", "Doe")));
+        crmTrace = new Trace("recmocks/traces/com/zuhlke/testing/recmocks/ReplayTestSubclass2.checkTraces.LegacyCrm.1.trace");
         crmTrace.logInvocation(new Invocation("getCustomer", args(1), new Customer("Bob", "Doe")));
 
         RecMocks.factory.setRecordMode(false);

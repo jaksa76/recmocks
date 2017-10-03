@@ -2,22 +2,36 @@ package com.zuhlke.testing.recmocks;
 
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
 
 import java.awt.*;
 
-class CurrentTestTracker extends RunListener {
-    private Context currentCtx = new Context(null, null);
+class CurrentTestTracker {
+    private final TestClass testClass;
+    private Context defaultCtx;
+    private Context currentCtx;
 
-    @Override
-    public void testStarted(Description description) throws Exception {
-        currentCtx = new Context(description.getTestClass(), description.getMethodName());
-        super.testStarted(description);
+    public CurrentTestTracker(TestClass testClass) {
+        this.testClass = testClass;
+        this.defaultCtx = new Context(testClass.getJavaClass(), null);
+        this.currentCtx = defaultCtx;
     }
 
-    @Override
-    public void testFinished(Description description) throws Exception {
-        currentCtx = new Context(null, null);
-        super.testFinished(description);
+    /**
+     * Invoked before the @Begin methods
+     * @param method
+     */
+    public void testStarted(FrameworkMethod method) {
+        currentCtx = new Context(testClass.getJavaClass(), method.getName());
+    }
+
+    /**
+     * Invoked after the @After methods
+     * @param method
+     */
+    public void testFinished(FrameworkMethod method) {
+
     }
 
     Context getCurrentContext() {
