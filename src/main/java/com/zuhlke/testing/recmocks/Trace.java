@@ -3,6 +3,7 @@ package com.zuhlke.testing.recmocks;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import org.objenesis.strategy.SerializingInstantiatorStrategy;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.io.*;
@@ -15,7 +16,7 @@ class Trace {
 
     Trace(String path) {
         this.path = path;
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+        kryo.setInstantiatorStrategy(new RecMocksInstantiationStrategy());
     }
 
     Invocation getNextInvocation() {
